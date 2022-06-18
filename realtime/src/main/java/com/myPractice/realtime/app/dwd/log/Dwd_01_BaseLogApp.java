@@ -221,7 +221,6 @@ public class Dwd_01_BaseLogApp extends BaseAppV1 {
                     /**
                      * 在初始化方法创建状态
                      * @param parameters
-                     * @throws Exception
                      */
                     @Override
                     public void open(Configuration parameters) throws Exception {
@@ -233,7 +232,6 @@ public class Dwd_01_BaseLogApp extends BaseAppV1 {
                      * @param value：当前的数据
                      * @param ctx：上下文
                      * @param out：输出流
-                     * @throws Exception
                      */
                     @Override
                     public void processElement(JSONObject value, KeyedProcessFunction<String, JSONObject, JSONObject>.Context ctx, Collector<JSONObject> out) throws Exception {

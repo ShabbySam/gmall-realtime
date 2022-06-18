@@ -1,2 +1,4 @@
 # Project exclude paths
 /realtime/target/
+/.idea/
+/realtime/src/main/resources/
