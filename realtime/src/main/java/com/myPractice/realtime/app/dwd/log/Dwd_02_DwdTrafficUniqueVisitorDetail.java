@@ -17,7 +17,6 @@ import org.apache.flink.streaming.api.functions.windowing.ProcessWindowFunction;
 import org.apache.flink.streaming.api.windowing.assigners.TumblingEventTimeWindows;
 import org.apache.flink.streaming.api.windowing.time.Time;
 import org.apache.flink.streaming.api.windowing.windows.TimeWindow;
-import org.apache.flink.streaming.connectors.kafka.FlinkKafkaProducer;
 import org.apache.flink.util.Collector;
 
 import java.time.Duration;
@@ -68,7 +67,6 @@ public class Dwd_02_DwdTrafficUniqueVisitorDetail extends BaseAppV1 {
         new Dwd_02_DwdTrafficUniqueVisitorDetail().init(10000, 2, "Dwd_02_DwdTrafficUniqueVisitorDetail", Constant.TOPIC_DWD_TRAFFIC_PAGE);
     }
 
-
     @Override
     public void handle(StreamExecutionEnvironment env, DataStreamSource<String> stream) {
         stream
@@ -89,8 +87,8 @@ public class Dwd_02_DwdTrafficUniqueVisitorDetail extends BaseAppV1 {
                     private ValueState<String> firstWindowState;
 
                     @Override
-                    public void open(Configuration parameters) throws Exception {
-                        firstWindowState = getRuntimeContext().getState(new ValueStateDescriptor<String>("firstWindowState", String.class));
+                    public void open(Configuration parameters) {
+                        firstWindowState = getRuntimeContext().getState(new ValueStateDescriptor<>("firstWindowState", String.class));
                     }
 
                     @Override
@@ -111,7 +109,6 @@ public class Dwd_02_DwdTrafficUniqueVisitorDetail extends BaseAppV1 {
 
                             out.collect(JSONObject.toJSONString(min));
                         }
-
                     }
                 })
                 // 将一个用户当天最早的一条访问记录发送到kafka

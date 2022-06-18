@@ -150,10 +150,10 @@ public class Dwd_01_BaseLogApp extends BaseAppV1 {
                         for (int i = 0; i < actions.size(); i++) {
                             // 创建一个新的，用于存储行动日志的信息
                             JSONObject action = actions.getJSONObject(i);
-                            // 往JSONObject放入其他日志信息
+                            // 往JSONObject放入其他日志信息,注意，action的ts是指的是行动日志的时间
                             action.putAll(common);
                             action.putAll(page);
-                            action.put("ts", ts);
+                            action.put(action.getString("ts"), ts);
                             // 存入副流
                             ctx.output(actionTag, action.toJSONString());
                         }
@@ -168,11 +168,12 @@ public class Dwd_01_BaseLogApp extends BaseAppV1 {
                 }
             }
         });
-        /**
-         * 返回多个流
-         *  1. list集合  取的顺序要和存的顺序一致
-         *  2. 元组  少的还好，多了也不好，也有顺序
-         *  3. map集合 给定key，取出对应的value
+
+        /*
+          返回多个流
+           1. list集合  取的顺序要和存的顺序一致
+           2. 元组  少的还好，多了也不好，也有顺序
+           3. map集合 给定key，取出对应的value
          */
         Map<String, DataStream<String>> result = new HashMap<>();
         result.put(ERROR, startStream.getSideOutput(errTag));
