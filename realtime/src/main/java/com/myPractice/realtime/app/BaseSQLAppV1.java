@@ -45,6 +45,7 @@ public abstract class BaseSQLAppV1 {
         env.getCheckpointConfig().setExternalizedCheckpointCleanup(CheckpointConfig.ExternalizedCheckpointCleanup.RETAIN_ON_CANCELLATION);
 
         StreamTableEnvironment tEnv = StreamTableEnvironment.create(env);
+        // 在join的时候，对join双方的表均有效，但对lookup join的维表无效
         tEnv.getConfig().setIdleStateRetention(Duration.ofSeconds(ttlSecond));
         // 给sql应用设置job name
         tEnv.getConfig().getConfiguration().setString("pipeline.name", ckAndGroupID);
