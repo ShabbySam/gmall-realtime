@@ -276,8 +276,8 @@ public class Dwd_01_BaseLogApp extends BaseAppV1 {
     private SingleOutputStreamOperator<JSONObject> etl(DataStreamSource<String> stream) {
         return stream.filter(json -> {
             try {
-                JSON.parseObject(json);
-                return true;
+                JSONObject jsonObject = JSON.parseObject(json);
+                return jsonObject != null;
             } catch (Exception e) {
                 System.out.println("不是json");
                 return false;
