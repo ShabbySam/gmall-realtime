@@ -36,7 +36,7 @@ public class FlinkSourceUtil {
                     // 解决消费kafka数据时遇到的null值，有null是因为kafka的数据更新过程写入的
                     @Override
                     public String deserialize(ConsumerRecord<byte[], byte[]> record) throws Exception {
-                        if (record.value() != null) {
+                        if (record.value() == null) {
                             return null;
                         }
                         return new String(record.value(), StandardCharsets.UTF_8);

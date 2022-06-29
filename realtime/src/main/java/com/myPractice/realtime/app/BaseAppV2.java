@@ -8,23 +8,30 @@ import org.apache.flink.streaming.api.datastream.DataStreamSource;
 import org.apache.flink.streaming.api.environment.CheckpointConfig;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 
+import java.util.*;
+
 /**
  * Created by IntelliJ IDEA.
  *
  * @Author : 小嘘嘘
  * @create 2022/6/14 20:21
  */
-public abstract class BaseAppV1 {
+public abstract class BaseAppV2 {
     /**
      * flink流创建
-     *      只能消费一个topic
+     *      消费多个kafka topic
      *
      * @param port：web客户端端口
      * @param parallelism：并行度
      * @param ckAndGroupID：类名和kafka消费者组id（同名）
-     * @param topic：消费的kafka主题
+     * @param firstTopic：kafka主题
      */
-    public void init(int port, int parallelism, String ckAndGroupID, String topic) {
+    public void init(int port, int parallelism, String ckAndGroupID, String firstTopic, String ... otherTopic) {
+        /*if (topic.length == 0) {
+            throw new RuntimeException("topic不能为空");
+        }*/
+
+
         System.setProperty("HADOOP_USER_NAME", "atguigu");
         Configuration conf = new Configuration();
         conf.setInteger("rest.port", port);
@@ -40,9 +47,17 @@ public abstract class BaseAppV1 {
         env.getCheckpointConfig().setCheckpointTimeout(60 * 1000);
         env.getCheckpointConfig().setExternalizedCheckpointCleanup(CheckpointConfig.ExternalizedCheckpointCleanup.RETAIN_ON_CANCELLATION);
 
-        DataStreamSource<String> stream = env.addSource(FlinkSourceUtil.getKafkaSource(ckAndGroupID, topic));
+        List<String> topics = new ArrayList<String>(Arrays.asList(otherTopic));
+        topics.add(firstTopic);
 
-        handle(env, stream);
+        HashMap<String, DataStreamSource<String>> streams = new HashMap<>();
+        for (String topic : topics) {
+            DataStreamSource<String> stream = env.addSource(FlinkSourceUtil.getKafkaSource(ckAndGroupID, topic));
+            streams.put(topic, stream);
+        }
+
+
+        handle(env, streams);
 
         try {
             env.execute(ckAndGroupID);
@@ -54,7 +69,7 @@ public abstract class BaseAppV1 {
     /**
      * 处流理的抽象方法
      * @param env: 执行流程序的环境
-     * @param stream：创建的流
+     * @param streams：创建的全部流
      */
-    public abstract void handle(StreamExecutionEnvironment env, DataStreamSource<String> stream);
+    public abstract void handle(StreamExecutionEnvironment env, Map<String, DataStreamSource<String>> streams);
 }

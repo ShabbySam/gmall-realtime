@@ -58,7 +58,7 @@ import java.util.Map;
  */
 public class Dwd_03_DwdTrafficUserJumpDetail_1 extends BaseAppV1 {
     public static void main(String[] args) {
-        new Dwd_03_DwdTrafficUserJumpDetail_1().init(10000,2,"Dwd_03_DwdTrafficUserJumpDetail_1", Constant.TOPIC_DWD_TRAFFIC_PAGE);
+        new Dwd_03_DwdTrafficUserJumpDetail_1().init(9998,2,"Dwd_03_DwdTrafficUserJumpDetail_1", Constant.TOPIC_DWD_TRAFFIC_PAGE);
     }
 
     @Override

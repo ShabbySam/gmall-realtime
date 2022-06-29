@@ -53,7 +53,7 @@ public class Dwd_01_BaseLogApp extends BaseAppV1 {
 
     public static void main(String[] args) {
         // 创建flink流处理的环境
-        new Dwd_01_BaseLogApp().init(10000, 2, "Dwd_01_BaseLogApp", Constant.TOPIC_ODS_LOG);
+        new Dwd_01_BaseLogApp().init(9999, 2, "Dwd_01_BaseLogApp1", Constant.TOPIC_ODS_LOG);
     }
 
     /**
