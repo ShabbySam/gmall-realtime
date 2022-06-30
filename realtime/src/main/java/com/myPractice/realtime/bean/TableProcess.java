@@ -23,4 +23,7 @@ public class TableProcess {
     private String sinkColumns;
     private String sinkPk;
     private String sinkExtend;
+
+    // 用于给redis判断是不是更新
+    private String operate_type;
 }

@@ -5,10 +5,12 @@ import com.alibaba.druid.pool.DruidPooledConnection;
 import com.alibaba.fastjson.JSONObject;
 import com.myPractice.realtime.bean.TableProcess;
 import com.myPractice.realtime.util.DruidDSUtil;
+import com.myPractice.realtime.util.RedisUtil;
 import org.apache.flink.api.java.tuple.Tuple2;
 import org.apache.flink.configuration.Configuration;
 import org.apache.flink.streaming.api.functions.sink.RichSinkFunction;
 import org.apache.flink.streaming.api.functions.sink.SinkFunction;
+import redis.clients.jedis.Jedis;
 
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
@@ -22,22 +24,25 @@ import java.sql.SQLException;
 public class PhoenixSink extends RichSinkFunction<Tuple2<JSONObject, TableProcess>> {
 
     private DruidPooledConnection connection;
+    private Jedis redisClient;
 
     /**
-     * 获取phoenix连接
-     * @param parameters
-     * @throws Exception
+     * 获取phoenix连接,获取redis连接
+     * @param parameters 参数
+     * @throws Exception 异常
      */
     @Override
     public void open(Configuration parameters) throws Exception {
         // 使用phoenix连接池——Druid连接池
         DruidDataSource druidDataSource = DruidDSUtil.getDruidDataSource();
         connection = druidDataSource.getConnection();
+        // 使用redis连接池
+        redisClient = RedisUtil.getRedisClient();
     }
 
     /**
-     * 关闭phoenix连接（使用连接池的时候是归还）
-     * @throws Exception
+     * 关闭phoenix连接（使用连接池的时候是归还）,关闭redis连接
+     * @throws Exception 异常
      */
     @Override
     public void close() throws Exception {
@@ -47,10 +52,37 @@ public class PhoenixSink extends RichSinkFunction<Tuple2<JSONObject, TableProces
         }
     }
 
+
+    /**
+     * 执行phoenix插入操作，更新redis中的缓存
+     * @param value 元组（json对象，表处理对象）
+     * @param context 上下文
+     * @throws Exception 异常
+     */
     @Override
     public void invoke(Tuple2<JSONObject, TableProcess> value, Context context) throws Exception {
-        // 写入phoenix
+        // 1. 写入phoenix
         writeToPhoenix(value);
+
+        // 2. 更新缓存或者删除缓存
+        delCache(value);
+
+    }
+
+    /**
+     *
+     * @param value
+     */
+    private void delCache(Tuple2<JSONObject, TableProcess> value) {
+        JSONObject data = value.f0;
+        TableProcess tp = value.f1;
+
+        if ("update".equals(tp.getOperate_type())) {
+            // key：表名:id
+            System.out.println("开始删除");
+            String key = tp.getSinkTable() + ":" + data.getString("id");
+            redisClient.del(key); // 删除的时候key不存在怎么办：不会报错，不管
+        }
 
     }
 

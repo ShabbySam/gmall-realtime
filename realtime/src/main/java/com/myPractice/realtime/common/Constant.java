@@ -42,4 +42,5 @@ public class Constant {
 
     public static final String CLICKHOUSE_DRIVER = "ru.yandex.clickhouse.ClickHouseDriver";
     public static final String CLICKHOUSE_URL = "jdbc:clickhouse://hadoop162:8123/gmall2022";
+    public static final int DIM_TTL = 2 * 60 * 60 * 24; // 维度ttl 2天
 }

@@ -1,5 +1,6 @@
 package com.myPractice.realtime.bean;
 
+import com.myPractice.realtime.annotation.NoSink;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -44,6 +45,7 @@ public class TradeSkuOrderBean {
 
     //-----
     // 订单 ID
+    @NoSink
     @Builder.Default
     Set<String> orderIdSet = new HashSet<>();
     

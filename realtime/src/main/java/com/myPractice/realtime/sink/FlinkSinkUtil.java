@@ -1,6 +1,7 @@
 package com.myPractice.realtime.sink;
 
 import com.alibaba.fastjson.JSONObject;
+import com.myPractice.realtime.annotation.NoSink;
 import org.apache.flink.shaded.guava18.com.google.common.base.CaseFormat;
 import com.myPractice.realtime.bean.TableProcess;
 import com.myPractice.realtime.common.Constant;
@@ -84,6 +85,12 @@ public class FlinkSinkUtil {
         // 获取所有的列名(属性名就是列名的驼峰式，顺序要求也是一一对应的)
         String names = Stream
                 .of(fields)
+                // 过滤掉不需要的字段
+                .filter(field -> {
+                    NoSink noSink = field.getAnnotation(NoSink.class);
+                    // 没有我自定义的noSink注解的才保留下来
+                    return noSink == null;
+                })
                 .map(fild -> {
                     String name = fild.getName();
                     // 驼峰转换成下划线
@@ -118,15 +125,18 @@ public class FlinkSinkUtil {
                         Class<?> tClass = t.getClass();
                         Field[] fields = tClass.getDeclaredFields();
                         try {
-                            for (int i = 0; i < fields.length; i++) {
+                            for (int i = 0, position = 1; i < fields.length; i++) {
                                 // 获取第i个属性的对象
                                 Field field = fields[i];
-                                // 暴力开启私有属性访问权限
-                                field.setAccessible(true);
-                                // 通过第i个属性的对象获取第i个属性的值
-                                Object v = field.get(t);
-                                // 给预编译 SQL 语句的对象赋值，占位符下标从1开始，所以要i+1
-                                ps.setObject(i + 1, v);
+                                if (field.getAnnotation(NoSink.class) == null) {
+                                    // 暴力开启私有属性访问权限
+                                    field.setAccessible(true);
+                                    // 通过第i个属性的对象获取第i个属性的值
+                                    Object v = field.get(t);
+                                    // 给预编译 SQL 语句的对象赋值，占位符下标从1开始，为了跳过不需要的字段采用了单独的计数器position
+                                    ps.setObject(position++, v);
+
+                                }
                             }
                         } catch (Exception e) {
                             e.printStackTrace();
