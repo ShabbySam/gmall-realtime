@@ -112,7 +112,7 @@ public class Dws_09_DwsTradeSkuOrderWindow_Cache_Async extends BaseAppV1 {
     }
 
     /**
-     * 添加维度信息 -> 读取储存在hbase里的维度表 -> 多个维度表可以做个异步提升效率
+     * 添加维度信息 -> 读取储存在hbase里的维度表 -> 对维度表读取多个字段的数据时可以做个异步提升效率
      * 原本：同步方式：一个一个算子下来，上一个不完事下一个不开始
      *
      *
@@ -122,6 +122,29 @@ public class Dws_09_DwsTradeSkuOrderWindow_Cache_Async extends BaseAppV1 {
      *  多线程+多客户端（最好是异步客户端但是没有）
      *      每个线程创建一个客户端进行请求查询
      *
+     *-----------------------------------------------------------------------------------------------
+     *
+     * 异步超时错误：
+     *  其他的原因导致异步处理没有完成，所以会超时（我这里设置的是等待60s）
+     *      1. 首先检查集群 redis hdfs kafka hbase
+     *      2. phoenix是否正常
+     *      3. 检查phoenix中的维度表是否全
+     *      4. 确定每张表都有数据
+     *          通过bootstrap同步一些数据
+     *      5. 寄！
+     *
+     * hbase起不来：
+     *  hdfs导致hbase出问题
+     *      重置
+     *          先停止
+     *              hdfs：删除目录/hbase
+     *              zk：deleteall /hbase
+     *          再启动
+     *
+     * kafka出问题
+     *  删除 logs/ 目录下所有文件
+     *      xcall /opt/module/kafka../logs/*
+     *  zk 删除节点： deleteall /kafka
      *
      */
     private SingleOutputStreamOperator<TradeSkuOrderBean> joinDim(SingleOutputStreamOperator<TradeSkuOrderBean> stream) {
@@ -266,6 +289,12 @@ public class Dws_09_DwsTradeSkuOrderWindow_Cache_Async extends BaseAppV1 {
 
     }
 
+
+    /**
+     * 开窗聚合
+     * @param stream 输入流
+     * @return 输出流
+     */
     private SingleOutputStreamOperator<TradeSkuOrderBean> windowAndAggregate(
        SingleOutputStreamOperator<TradeSkuOrderBean> stream) {
         return stream
