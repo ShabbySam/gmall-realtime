@@ -10,6 +10,8 @@ import redis.clients.jedis.JedisPoolConfig;
  *
  * @Author : 小嘘嘘
  * @create 2022/6/29 18:06
+ *
+ * redis连接池
  */
 public class RedisUtil {
     private static JedisPool pool;

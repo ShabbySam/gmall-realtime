@@ -65,7 +65,7 @@ public abstract class DimAsyncFunction<T> extends RichAsyncFunction<T, T> implem
                 // 使用客户端去读取维度
                 JSONObject dim = DimUtil.readDim(redisClient, phoenixConnection, getTable(), getId(input));
 
-                // 把读到的维度数据存入到 input对象中
+                // 把读到的维度数据再存入到 input对象中
                 addDim(input, dim);
 
                 resultFuture.complete(Collections.singletonList(input));

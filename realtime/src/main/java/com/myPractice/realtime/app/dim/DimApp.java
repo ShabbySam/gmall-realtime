@@ -198,7 +198,7 @@ public class DimApp extends BaseAppV1 {
                         TableProcess tp = ctx.getBroadcastState(tpStateDesc).get(value.getString("table"));
                         if (tp != null) { // 先判断配置信息是否为null 如果为null, 不需要: 可能是配置表没写的不需要的维度表,或者是事实表.
                             JSONObject data = value.getJSONObject("data");
-//                            // ods_db里面有一个字段叫type，表示这行数据是insert还是update，这个需要保留，用于后面redis的缓存更新或删除操作
+//                            // ods_db里面有一个字段叫type，表示这行数据是insert还是update，这个需要保留，用于后面redis的缓存进行删除操作判断
                             tp.setOperate_type(value.getString("type"));
                             out.collect(Tuple2.of(data, tp));// 有用的信息只剩下data
                         }

@@ -16,6 +16,14 @@ import java.util.List;
  * @create 2022/6/29 0:13
  */
 public class DimUtil {
+    /**
+     * 从phoenix读取维度数据
+     * @param phoenixConn 数据库连接
+     * @param dimTableName 维度表名
+     * @param id 维度ID
+     * @param underlineToCaseCamel 是否下划线转驼峰命名
+     * @return 维度数据
+     */
     public static JSONObject readDimFromPhoenix(Connection phoenixConn, String dimTableName, String id, Boolean... underlineToCaseCamel ) {
         // select * from t where id=?
         String sql = "select * from " + dimTableName + " where id=?";
